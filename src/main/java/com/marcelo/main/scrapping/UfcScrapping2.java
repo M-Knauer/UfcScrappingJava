@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebWindowListener;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 
 public class UfcScrapping2 {
 
@@ -80,6 +81,8 @@ public class UfcScrapping2 {
 			List<List<String>> fighterStatList = new ArrayList<>();
 			List<Element> winLoseElements = new ArrayList<>();
 			List<String> fighterCountry = new ArrayList<>();
+			 
+			List<List<String>> fighterHistoryList = new ArrayList<>();
 			
 			for (String s : redFightersLink) {		
 				try {
@@ -100,9 +103,18 @@ public class UfcScrapping2 {
 					List<Element> divCountry = docStat.getElementsByClass("fighter-nationality");
 					fighterCountry.add(divCountry.get(0).text());
 					
-					// pega o historico de lutas
-					
-					
+					// pega o historico de lutas de cada lutador
+					List<Element> divHistory = docStat.getElementsByClass("module fight_history");
+					List<Element> trHistory = divHistory.get(0).getElementsByTag("tr");
+					List<String> fighterHistory = new ArrayList<>();
+					for (int c = 0; c < trHistory.size(); c++) {
+						if (c != 0) {
+							String linha = trHistory.get(c).getElementsByTag("td").text();
+							fighterHistory.add(linha);
+						}
+					}
+					// adiciona na lista de historicos
+					fighterHistoryList.add(fighterHistory);
 					
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -137,6 +149,9 @@ public class UfcScrapping2 {
 				}
 			});
 			
+			// ver como dividir a lista de hostorico de cada lutador?
+			
+			
 			
 			
 			//System.out.println(fighterStatList.get(0).get(2));
@@ -148,8 +163,6 @@ public class UfcScrapping2 {
 					});
 			});
 			*/
-			
-			// Pegar o historico de cada lutador
 			
 	
 		} catch (Exception e) {
