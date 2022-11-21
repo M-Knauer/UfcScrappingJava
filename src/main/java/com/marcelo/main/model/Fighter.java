@@ -1,25 +1,33 @@
 package com.marcelo.main.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Fighter {
 	private Corner corner;
 	private String name;
 	private String cartel;
 	private String country;
+	private String age;
 	private String height;
 	private String weight;
+	private List<String> fightHistory = new ArrayList<>();
 	
 	public Fighter() {
 		super();
 	}
 
-	public Fighter(Corner corner, String name, String cartel, String country, String height, String weight) {
+	public Fighter(Corner corner, String name, String cartel, String country, String age, String height, String weight,
+			List<String> fightHistory) {
 		super();
 		this.corner = corner;
 		this.name = name;
 		this.cartel = cartel;
 		this.country = country;
+		this.age = age;
 		this.height = height;
 		this.weight = weight;
+		this.fightHistory = fightHistory;
 	}
 
 	public Corner getCorner() {
@@ -54,6 +62,14 @@ public class Fighter {
 		this.country = country;
 	}
 
+	public String getAge() {
+		return age;
+	}
+
+	public void setAge(String age) {
+		this.age = age;
+	}
+
 	public String getHeight() {
 		return height;
 	}
@@ -70,7 +86,13 @@ public class Fighter {
 		this.weight = weight;
 	}
 
-	
+	public List<String> getFightHistory() {
+		return fightHistory;
+	}
+
+	public void addFightHistory(String fight) {
+		fightHistory.add(fight);
+	}
 	
 	
 }

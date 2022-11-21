@@ -2,31 +2,29 @@ package com.marcelo.main.scrapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebWindowListener;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.marcelo.main.model.Corner;
+import com.marcelo.main.model.Fighter;
 
 public class UfcScrapping2 {
 
-	public static List<String> fetchFighters() {
-
-		WebClient webClient = new WebClient(BrowserVersion.CHROME);
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		webClient.getOptions().setThrowExceptionOnScriptError(false);
-		webClient.getOptions().setPrintContentOnFailingStatusCode(false);
-
+	public static List<Fighter> fetchFighters() {
 		// Pegar a url da primeira pagina dos eventos no sherdog
 		try {
+			
+			WebClient webClient = new WebClient(BrowserVersion.CHROME);
+			webClient.getOptions().setCssEnabled(false);
+			webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+			webClient.getOptions().setThrowExceptionOnScriptError(false);
+			webClient.getOptions().setPrintContentOnFailingStatusCode(false);
+			
 			/*
 			HtmlPage page = webClient.getPage("https://www.ufc.com.br/events");
 
@@ -80,8 +78,7 @@ public class UfcScrapping2 {
 			List<Element> trElements = new ArrayList<>();
 			List<List<String>> fighterStatList = new ArrayList<>();
 			List<Element> winLoseElements = new ArrayList<>();
-			List<String> fighterCountry = new ArrayList<>();
-			 
+			List<String> fighterCountry = new ArrayList<>(); 
 			List<List<String>> fighterHistoryList = new ArrayList<>();
 			
 			for (String s : redFightersLink) {		
@@ -149,45 +146,51 @@ public class UfcScrapping2 {
 				}
 			});
 			
-			// ver como dividir a lista de hostorico de cada lutador?
 			
 			
-			
-			
-			//System.out.println(fighterStatList.get(0).get(2));
-			
-			/*
-			fighterStatList.forEach(action -> {
-				action.forEach(e -> {
-					System.out.println(e);
-					});
-			});
-			*/
-			
+			// instancia o objeto e adiciona na lista de objetos
+			List<Fighter> fighters = new ArrayList<>();
+			for (int c = 0; c < redFightersName.size(); c++) {
+				Fighter fighter = new Fighter();
+				fighter.setCorner(Corner.red);
+				fighter.setName(redFightersName.get(c));
+				fighter.setCountry(fighterCountry.get(c));
+				fighter.setAge(fighterStatList.get(c).get(0));
+				fighter.setHeight(fighterStatList.get(c).get(1));
+				fighter.setWeight(fighterStatList.get(c).get(2));
+				fighter.setCartel(winLoseLists.get(c).get(0) +" "+ winLoseLists.get(c).get(1));
+				for (int i = 0; i < fighterHistoryList.get(c).size(); i++) {
+					fighter.addFightHistory(fighterHistoryList.get(c).get(i));
+				}
+				
+				fighters.add(fighter);
+			}
+			return fighters;
 	
 		} catch (Exception e) {
-			System.out.println(e);
+			e.printStackTrace();
+			return null;
 		}
-		return null;
+		
 	}
 
 	public static void main(String[] args) throws IOException {
 
-		List<String> fighters = fetchFighters();
-		/*
-		for (int f = 0; f < fighters.size(); f++) {
-			if (f % 2 == 0) {
-				System.out.println(fighters.get(f));
-
-				System.out.println("VS");
-			} else {
-				System.out.println(fighters.get(f));
-				System.out.println();
-			}
-
-		}
-		*/
-
+		List<Fighter> fighters = fetchFighters();
+	
+		fighters.forEach(f -> {
+			System.out.println(f.getCorner());
+			System.out.println(f.getName());
+			System.out.println(f.getAge());
+			System.out.println(f.getCountry());
+			System.out.println(f.getHeight());
+			System.out.println(f.getWeight());
+			System.out.println(f.getCartel());
+			System.out.println(f.getFightHistory());
+			System.out.println();
+			
+		});
+		
 	}
 
 }
