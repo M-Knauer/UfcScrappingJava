@@ -4,17 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.crypto.Data;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.marcelo.main.model.Corner;
 import com.marcelo.main.model.Fighter;
 
@@ -121,13 +114,10 @@ public class UfcScrapping2 {
 	
 	
 	// pega as caracteristicas físicas do lutador
-	private static List<List<String>> getFighterBio(List<String> fighterLinks) {
-		List<String> fighterLink = fighterLinks;
-		List<List<String>> fighterStatList = new ArrayList<>();
+	private static List<List<String>> getFighterBio(List<Document> docs) {
 		
-		fighterLink.forEach(link -> {
-			Document doc = connectJsoup(link);
-			
+		List<List<String>> fighterStatList = new ArrayList<>();
+		docs.forEach(doc -> {
 			// pega os elementos da bio do lutador
 			List<Element> fighterData = doc.selectXpath("//div[@class='bio-holder']");
 			List<Element> trElements = new ArrayList<>();
@@ -156,12 +146,10 @@ public class UfcScrapping2 {
 	}
 	
 	// retorna vitorias e derrotas de cada lutador
-	private static List<List<String>> getCartel(List<String> fighterLinks) {
+	private static List<List<String>> getCartel(List<Document> docs) {
 		// pega o cartel
-		List<String> fighterLink = fighterLinks;
 		List<Element> winLoseElements = new ArrayList<>();
-		fighterLink.forEach(link -> {
-			Document doc = connectJsoup(link);
+		docs.forEach(doc -> {
 			List<Element> divCartel = doc.selectXpath("//div[@class='winsloses-holder']");
 			
 			winLoseElements.addAll(divCartel.get(0).getElementsByClass("winloses win"));
@@ -184,24 +172,21 @@ public class UfcScrapping2 {
 		return winLoseLists;
 	}
 	
-	private static List<String> getCountry(List<String> fighterLinks) {
-		List<String> fighterLink = fighterLinks;
-		// pega o país
+	private static List<String> getCountry(List<Document> docs) {
+		// Pega o país
 		List<String> fighterCountry = new ArrayList<>();
-		fighterLink.forEach(link -> {
-			Document doc = connectJsoup(link);
+		docs.forEach(doc -> {
 			List<Element> divCountry = doc.getElementsByClass("fighter-nationality");
 			fighterCountry.add(divCountry.get(0).text());
 		});
 		return fighterCountry;
 	}
 	
-	// pega o historico de lutas de cada lutador
-	private static List<List<String>> getFightHistory(List<String> fighterLinks) throws IOException {
-		List<String> fightersLink = fighterLinks;
+	// Pega o historico de lutas de cada lutador
+	private static List<List<String>> getFightHistory(List<Document> docs) throws IOException {
+		
 		List<List<String>> fighterHistoryList = new ArrayList<>();
-		for (String s : fightersLink) {		
-			Document docStat = Jsoup.connect(s).get();
+		for (Document docStat : docs) {		
 				
 			List<Element> divHistory = docStat.getElementsByClass("module fight_history");
 			List<Element> trHistory = divHistory.get(0).getElementsByTag("tr");
@@ -212,26 +197,36 @@ public class UfcScrapping2 {
 					fighterHistory.add(linha);
 				}
 			}
-			// adiciona na lista de historicos
+			// Adiciona na lista de historicos
 			fighterHistoryList.add(fighterHistory);
 		}
 		return fighterHistoryList;
+	}
+	
+	private static List<Document> getDocs(List<String> links) {
+		List<Document> docs = new ArrayList<>();
+		links.forEach(link -> {
+			docs.add(connectJsoup(link));
+		});
+		
+		return docs;	
 	}
 
 	public static List<Fighter> fetchFighters() {
 		
 		try {
 			// Pega a url da primeira pagina dos eventos no sherdog
-			//String url = getUrlString();
+			// String url = getUrlString();
 			Document doc = connectJsoup("https://www.sherdog.com/events/UFC-on-ESPN-42-Thompson-vs-Holland-94046");
 			List<Element> fights = doc.select("div.inner-wrapper");
 			
 			List<String> fightersName = getFightersName(fights);
 			List<String> fighterLinks = getFighterLink(fights);
-			List<String> countrys = getCountry(fighterLinks);
-			List<List<String>> cartel = getCartel(fighterLinks);
-			List<List<String>> bio = getFighterBio(fighterLinks);
-			List<List<String>> history = getFightHistory(fighterLinks);
+			List<Document> docs = getDocs(fighterLinks);
+			List<String> countrys = getCountry(docs);
+			List<List<String>> cartel = getCartel(docs);
+			List<List<String>> bio = getFighterBio(docs);
+			List<List<String>> history = getFightHistory(docs);
 			
 			// instancia o objeto e adiciona na lista de objetos
 			List<Fighter> fighters = new ArrayList<>();
